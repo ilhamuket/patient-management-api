@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
  *      title="Patient Management API Documentation",
  *      description="API Documentation for managing patients",
  *      @OA\Contact(
- *          email="muhamad.ilham@example.com"
+ *          email="muhammadilham6676@gmail.com"
  *      )
  * )
  * 
