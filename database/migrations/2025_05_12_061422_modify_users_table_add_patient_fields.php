@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('id_type')->nullable()->after('email');
             $table->string('id_no')->nullable()->after('id_type');
-            $table->enum('gender', ['male', 'female', 'other'])->nullable()->after('id_no');
+            $table->string('gender')->nullable()->after('id_no');
             $table->date('dob')->nullable()->after('gender');
             $table->text('address')->nullable()->after('dob');
         });

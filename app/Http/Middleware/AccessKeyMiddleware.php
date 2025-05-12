@@ -25,9 +25,10 @@ class AccessKeyMiddleware
             ], 401);
         }
 
-        $key = AccessKey::whereRaw('BINARY `key` = ?', [$accessKey])
-            ->where('is_active', true)
-            ->first();
+       $key = AccessKey::where('key', $accessKey)
+        ->where('is_active', true)
+        ->first();
+
 
 
         if (!$key) {
