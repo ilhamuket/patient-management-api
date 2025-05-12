@@ -25,7 +25,7 @@ class PatientRepository implements PatientRepositoryInterface
 
     public function getPatientById($id)
     {
-        return $this->patient->with('user')->findOrFail($id);
+        return $this->patient->with('user')->find($id); 
     }
 
     public function createPatient(array $data)
@@ -56,7 +56,8 @@ class PatientRepository implements PatientRepositoryInterface
     public function updatePatient($id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
-            $patient = $this->patient->findOrFail($id);
+            $patient = $this->patient->find($id);
+            if (!$patient) return null;
             
             $patient->update([
                 'medium_acquisition' => $data['medium_acquisition'],
@@ -77,7 +78,8 @@ class PatientRepository implements PatientRepositoryInterface
 
     public function deletePatient($id)
     {
-        $patient = $this->patient->findOrFail($id);
+        $patient = $this->patient->find($id);
+        if (!$patient) return null;
         $userId = $patient->user_id;
         
         return DB::transaction(function () use ($patient, $userId) {

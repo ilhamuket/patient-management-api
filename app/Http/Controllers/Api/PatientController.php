@@ -165,12 +165,18 @@ class PatientController extends Controller
         try {
             $patient = $this->patientService->createPatient($request->all());
             $transformedPatient = $this->patientTransformer->transform($patient);
-            
+
             return $this->successResponse($transformedPatient, 'Patient successfully created!', Response::HTTP_CREATED);
         } catch (ValidationException $e) {
-            return $this->errorResponse('Oops! There were some issues with the input. Please check and try again.', Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse('Validation failed.', Response::HTTP_UNPROCESSABLE_ENTITY, $e->errors());
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23505') {
+                return $this->errorResponse('Patient already exists with the same email.', Response::HTTP_CONFLICT);
+            }
+            return $this->errorResponse('Database error: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\Exception $e) {
-            return $this->errorResponse('Oops! Something went wrong while creating the patient. Please try again later.', Response::HTTP_INTERNAL_SERVER_ERROR);
+            \Log::error('Error creating patient: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return $this->errorResponse('Unexpected error occurred.', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -224,20 +230,26 @@ class PatientController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
         try {
             $patient = $this->patientService->getPatientById($id);
+
             if (!$patient) {
-                return $this->errorResponse('Patient not found. Please verify the ID and try again.', Response::HTTP_NOT_FOUND);
+                return $this->errorResponse('Patient not found.', Response::HTTP_NOT_FOUND);
             }
-            $transformedPatient = $this->patientTransformer->transform($patient);
-            
-            return $this->successResponse($transformedPatient, 'Patient details retrieved successfully!');
+
+            return $this->successResponse(
+                $this->patientTransformer->transform($patient),
+                'Patient found.',
+                Response::HTTP_OK
+            );
         } catch (\Exception $e) {
-            return $this->errorResponse('Oops! Something went wrong while retrieving the patient. Please try again later.', Response::HTTP_INTERNAL_SERVER_ERROR);
+            \Log::error('Error fetching patient: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return $this->errorResponse('Unexpected error occurred.', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
     /**
      * @OA\Put(
@@ -310,22 +322,28 @@ class PatientController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         try {
             $patient = $this->patientService->updatePatient($id, $request->all());
+
             if (!$patient) {
-                return $this->errorResponse('Patient not found. Please verify the ID and try again.', Response::HTTP_NOT_FOUND);
+                return $this->errorResponse('Patient not found.', Response::HTTP_NOT_FOUND);
             }
-            $transformedPatient = $this->patientTransformer->transform($patient);
-            
-            return $this->successResponse($transformedPatient, 'Patient updated successfully!');
+
+            return $this->successResponse(
+                $this->patientTransformer->transform($patient),
+                'Patient successfully updated.',
+                Response::HTTP_OK
+            );
         } catch (ValidationException $e) {
-            return $this->errorResponse('Oops! There were some issues with the input. Please check and try again.', Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->errorResponse('Validation failed.', Response::HTTP_UNPROCESSABLE_ENTITY, $e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse('Oops! Something went wrong while updating the patient. Please try again later.', Response::HTTP_INTERNAL_SERVER_ERROR);
+            \Log::error('Error updating patient: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return $this->errorResponse('Unexpected error occurred.', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
     /**
      * @OA\Delete(
@@ -367,17 +385,20 @@ class PatientController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
         try {
-            $patient = $this->patientService->deletePatient($id);
-            if (!$patient) {
-                return $this->errorResponse('Patient not found. Please verify the ID and try again.', Response::HTTP_NOT_FOUND);
+            $deleted = $this->patientService->deletePatient($id);
+
+            if (!$deleted) {
+                return $this->errorResponse('Patient not found.', Response::HTTP_NOT_FOUND);
             }
-            
-            return $this->successResponse([], 'Patient deleted successfully!');
+
+            return $this->successResponse(null, 'Patient successfully deleted.', Response::HTTP_OK);
         } catch (\Exception $e) {
-            return $this->errorResponse('Oops! Something went wrong while deleting the patient. Please try again later.', Response::HTTP_INTERNAL_SERVER_ERROR);
+            \Log::error('Error deleting patient: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return $this->errorResponse('Unexpected error occurred.', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 }
