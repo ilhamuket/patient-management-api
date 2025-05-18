@@ -2,18 +2,12 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Patient Management API Documentation",
-        "description": "API Documentation for managing patients",
+        "description": "API Documentation for managing patients.\n\nAPI Key for testing: Diu99f8S6kjm7PPFYRxuXymOyWpX8w7g\n\nPlease use this API key in the X-API-KEY header when trying out the endpoints.",
         "contact": {
             "email": "muhammadilham6676@gmail.com"
         },
         "version": "1.0.0"
     },
-    "servers": [
-        {
-            "url": "/api",
-            "description": "API Server"
-        }
-    ],
     "paths": {
         "/patients": {
             "get": {

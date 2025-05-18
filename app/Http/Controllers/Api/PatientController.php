@@ -12,17 +12,16 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * @OA\Info(
- *      version="1.0.0",
- *      title="Patient Management API Documentation",
- *      description="API Documentation for managing patients",
- *      @OA\Contact(
- *          email="muhammadilham6676@gmail.com"
- *      )
- * )
- * 
- * @OA\Server(
- *      url="/api",
- *      description="API Server"
+ *     version="1.0.0",
+ *     title="Patient Management API Documentation",
+ *     description= "API Documentation for managing patients.
+
+API Key for testing: Diu99f8S6kjm7PPFYRxuXymOyWpX8w7g
+
+Please use this API key in the X-API-KEY header when trying out the endpoints.",
+ *     @OA\Contact(
+ *         email="muhammadilham6676@gmail.com"
+ *     )
  * )
  * 
  * @OA\SecurityScheme(
@@ -32,6 +31,7 @@ use Illuminate\Validation\ValidationException;
  *      name="X-API-KEY"
  * )
  */
+
 class PatientController extends Controller
 {
     use ApiResponseTrait;
