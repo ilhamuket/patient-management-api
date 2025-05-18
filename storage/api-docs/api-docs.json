@@ -8,6 +8,12 @@
         },
         "version": "1.0.0"
     },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "API Server"
+        }
+    ],
     "paths": {
         "/patients": {
             "get": {
