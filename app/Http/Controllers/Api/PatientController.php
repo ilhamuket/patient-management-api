@@ -24,6 +24,11 @@ Please use this API key in the X-API-KEY header when trying out the endpoints.",
  *     )
  * )
  * 
+ * @OA\Server(
+ *      url="/api",
+ *      description="API Server"
+ * )
+ * 
  * @OA\SecurityScheme(
  *      securityScheme="ApiKeyAuth",
  *      type="apiKey",
