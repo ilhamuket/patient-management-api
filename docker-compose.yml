@@ -1,27 +1,16 @@
 services:
-  app:
+  frankenphp:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel_app
-    working_dir: /var/www
+    container_name: laravel_frankenphp
+    ports:
+      - "8080:80"
+      - "8443:443" 
     volumes:
-      - ./:/var/www
+      - .:/app
     depends_on:
       - db
-    networks:
-      - laravel
-
-  webserver:
-    image: nginx:alpine
-    container_name: laravel_nginx
-    volumes:
-      - ./:/var/www
-      - ./nginx/conf.d:/etc/nginx/conf.d
-    ports:
-      - "8080:80"  
-    depends_on:
-      - app
     networks:
       - laravel
 
@@ -33,6 +22,8 @@ services:
       POSTGRES_DB: laravel_db
       POSTGRES_USER: laravel_user
       POSTGRES_PASSWORD: laravelpass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -41,3 +32,6 @@ services:
 networks:
   laravel:
     driver: bridge
+
+volumes:
+  pgdata:

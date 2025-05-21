@@ -1,32 +1,20 @@
-FROM php:8.2-fpm
+FROM dunglas/frankenphp
 
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    libonig-dev \
-    libxml2-dev \
-    git \
-    unzip \
-    zip \
-    curl \
-    && docker-php-ext-install pdo_pgsql pgsql mbstring xml \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install dependencies & PHP extension pdo_pgsql + Composer
+RUN apt-get update && apt-get install -y curl unzip git libpq-dev \
+    && docker-php-ext-install pdo_pgsql \
+    && curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
 
+WORKDIR /app
 
+COPY . .
 
+# Optional: untuk fresh install
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Install Composer global
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Optional: permission fix
+RUN chmod -R 775 storage bootstrap/cache
 
-WORKDIR /var/www
-
-# Copy semua file ke container (optional, bisa pakai volume juga)
-# COPY . /var/www
-
-# Jalankan composer install saat build (opsional, biasanya dijalankan manual)
-# RUN composer install --no-dev --optimize-autoloader
-
-# Set permission (opsional)
-# RUN chown -R www-data:www-data /var/www
-
-EXPOSE 9000
-CMD ["php-fpm"]
+# Copy custom Caddy config
+COPY Caddyfile /etc/caddy/Caddyfile
